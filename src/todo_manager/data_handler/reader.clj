@@ -1,6 +1,6 @@
 (ns todo-manager.data-handler.reader
    (:require [clojure.java.io :refer [reader]]
-             [clojure.string :refer [join split trim]]
+             [clojure.string :refer [join split trim blank?]]
              [clj-time.core :refer [date-time default-time-zone]]
              [clj-time.format :refer [formatter parse]]))
 
@@ -11,13 +11,6 @@
     (->> (split value #",")
          (map trim)
          (set))))
-
-; (defn parse-time
-;   [date]
-;   (->> (split date #":|-|/")
-;        (map read-string)
-;        ; (reverse)
-;        (apply date-time)))
 
 (defn parse-time
   [date]
@@ -39,11 +32,13 @@
 
 (defn parse-todo
   [input]
-   (->> (split (trim input) #";")
+  (if (blank? input) nil
+    (->> (split (trim input) #";")
        (map #(deserialize (split % #":")))
-       (into {})))
+       (into {}))))
 
 (defn parse-collection
   [file-path]
   (with-open [rdr (reader file-path)]
-  (doall (map parse-todo (line-seq rdr)))))
+  (doall (filter #((complement nil?) %)
+                 (map parse-todo (line-seq rdr))))))

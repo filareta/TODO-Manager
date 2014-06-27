@@ -5,9 +5,9 @@
              :refer [parse-time parse-tags]]))
 
 
-(def new-todos (atom []))
-(def todos-in-progress (atom []))
-(def completed-todos (atom []))
+(def new-todos (atom #{}))
+(def todos-in-progress (atom #{}))
+(def completed-todos (atom #{}))
 
 (def status-mapper {:new new-todos
                     :in-progress todos-in-progress

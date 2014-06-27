@@ -24,14 +24,16 @@
     :or  (reduce union (map #(search-todo coll %) (next criteria)))
     :not (->> (map #(search-todo coll %) (next criteria))
               (reduce union)
-              (difference (set coll)))
-    (reduce intersection (set coll) (map #(filter-by % coll) criteria))))
+              (difference coll))
+    (reduce intersection coll (map #(filter-by % coll) criteria))))
 
 (defn search-all
   [criteria]
-  (-> [@new-todos @todos-in-progress @completed-todos]
-      (flatten)
-      (search-todo criteria)))
+  (let [all-todos (-> #{}
+                      (into @todos-in-progress)
+                      (into @new-todos)
+                      (into @completed-todos))]
+    (search-todo all-todos criteria)))
 
 (def priority-comparator
   (comparator (fn [{priority1 :priority} {priority2 :priority}]
@@ -51,8 +53,8 @@
 
 (defn order-by-priority
   [coll]
-  (lazy-qsort coll priority-comparator))
+  (lazy-qsort (vec coll) priority-comparator))
 
 (defn order-by-progress
   [coll]
-  (lazy-qsort coll progress-comparator))
+  (lazy-qsort (vec coll) progress-comparator))
