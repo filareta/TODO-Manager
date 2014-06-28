@@ -61,19 +61,19 @@
 (defn -main
   "I don't do a whole lot."
   [& args]
-  ; (add-todo todo1 status-mapper)
-  ; (add-todo todo5 status-mapper)
   (swap! new-todos into (parse-collection "resources/new_todos.txt"))
   (swap! todos-in-progress into (parse-collection "resources/todos_in_progress.txt"))
   (swap! completed-todos into (parse-collection "resources/completed_todos.txt"))
-  (ui/main-frame (-> []
+  (add-todo todo1 status-mapper)
+  (add-todo todo5 status-mapper)
+  (add-todo todo2 status-mapper)
+  (add-todo todo3 status-mapper)
+  (add-todo todo3 status-mapper)
+  (ui/draw (-> []
                      (into @todos-in-progress)
                      (into @new-todos)
                      (into @completed-todos)))
-  ; (ui/status-menu)
-  ; (add-todo todo2 status-mapper)
-  ; (add-todo todo3 status-mapper)
-  ; (add-todo todo3 status-mapper)
+  ; (ui/main-frame)
   (println (search-all {:tag "exam"}))
   (println (search-todo @new-todos [:or {:tag "exam"} {:priority 2}]))
   ; (delete-todo (first (search-todo @todos-in-progress {:goal "Voip exam"})) status-mapper)
