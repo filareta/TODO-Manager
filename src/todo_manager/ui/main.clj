@@ -12,10 +12,10 @@
 (def frame (s/frame :title "TODO Manager" :height 640 :width 480
                     :resizable? true :visible? true :on-close :exit))
 
-(def statuses (s/flow-panel :items [(s/checkbox :text "new")
-                                   (s/checkbox :text "in-progress")
-                                   (s/checkbox :text "completed")
-                                   (s/checkbox :text "all" :selected? true)]
+(def statuses (s/flow-panel :items [(s/checkbox :text "new" :id :new :class :status)
+                                   (s/checkbox :text "in-progress" :id :in-progress :class :status)
+                                   (s/checkbox :text "completed" :id :completed :class :status)
+                                   (s/checkbox :text "all" :id :all :selected? true :class :status)]
                            :align :center
                            :hgap 20 :vgap 20))
 
@@ -45,6 +45,51 @@
                                                                 (draw-collection)
                                                                 (conj top))))))
 
+(defn attach-status-listeners
+  []
+  (let [class-selector (s/select statuses [:.status])
+        new-selector (s/select statuses [:#new])
+        in-progress-selector (s/select statuses [:#in-progress])
+        completed-selector (s/select statuses [:#completed])]
+    (s/listen new-selector
+            :action
+            (fn [e]
+              (s/config! class-selector :selected? false)
+              (s/config! new-selector :selected? true)
+              (s/config! panel :items (-> @new-todos
+                                          (draw-collection)
+                                          (conj top)))))
+    (s/listen in-progress-selector
+            :action
+            (fn [e]
+              (s/config! class-selector :selected? false)
+              (s/config! in-progress-selector :selected? true)
+              (s/config! panel :items (-> @todos-in-progress
+                                          (draw-collection)
+                                          (conj top)))))
+    (s/listen completed-selector
+            :action
+            (fn [e]
+              (s/config! class-selector :selected? false)
+              (s/config! completed-selector :selected? true)
+              (s/config! panel :items (-> @completed-todos
+                                          (draw-collection)
+                                          (conj top)))))))
+
+; (defn attach-status-listeners
+;   []
+;   (let [selectors (map #(s/select statuses [%])
+;                        [:#new :#in-progress :#completed])
+;         status-map (zipmap [:new :in-progress :completed] selectors)]
+;     (println status-map)
+;     (for [[status selector] status-map]
+;       (s/listen selector
+;             :action
+;             (fn [e] (s/config! selector :selected? true)
+;               (s/config! panel :items (-> (status status-mapper)
+;                                           (draw-collection)
+;                                           (conj top))))))))
+
 (defn draw-todo
   [{status :status start_date :start_date end_date :end_date goal :goal
     priority :priority progress :progress tags :tags :as todo} id]
@@ -73,6 +118,7 @@
 (defn draw
   [todos]
   (let [items (draw-collection todos)]
+    (attach-status-listeners)
     (-> frame
       (s/config! :content (s/config! panel :items (conj items top)))
       (s/show!))))
