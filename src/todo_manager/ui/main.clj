@@ -5,9 +5,14 @@
             [todo-manager.data-handler.storage
              :refer [delete-todo status-mapper
                      new-todos todos-in-progress completed-todos]]
+            [todo-manager.search :refer [build-search-criteria
+                                         search-all]]
             [clojure.string :refer [join]]))
 
 (declare draw-collection)
+(declare draw-todo)
+
+(def query-string (atom ""))
 
 (def frame (s/frame :title "TODO Manager" :height 640 :width 480
                     :resizable? true :visible? true :on-close :exit))
@@ -21,8 +26,8 @@
                            :align :center
                            :hgap 20 :vgap 20))
 
-(def search-bar (s/horizontal-panel :items [(s/text  :text "Search your TODOs here!")
-                                           (s/button :text "Search"
+(def search-bar (s/horizontal-panel :items [(s/text  :text "Search your TODOs here!" :id :input)
+                                           (s/button :text "Search" :id :search-button
                                                      :halign :center
                                                      :valign :center)]))
 
@@ -47,12 +52,20 @@
           (into @completed-todos))
       @(status status-mapper))))
 
+(def back-button
+  (s/button :text "Back" :id :back
+            :listen [:action (fn [e] (s/selection! button-group (s/select statuses [:#all]))
+                               (s/config! panel :items (-> (resolve-todos-type)
+                                                           (draw-collection)
+                                                           (conj top))))]))
+
 (defn attach-todo-listeners
   [delete-button edit-button todo]
   (s/listen delete-button :action (fn [e] (delete-todo todo status-mapper)
                                     (s/config! panel :items (-> (resolve-todos-type)
                                                                 (draw-collection)
-                                                                (conj top))))))
+                                                                (conj top)))))
+  (s/listen edit-button :action (fn [e] (s/config! panel :items [(draw-todo todo) back-button]))))
 
 (defn attach-status-listeners
   []
@@ -91,6 +104,25 @@
                                           (into @completed-todos)
                                           (draw-collection)
                                           (conj top)))))))
+
+(defn attach-search-listeners
+  []
+  (let [input-selector (s/select search-bar [:#input])
+        button-selector (s/select search-bar [:#search-button])]
+    (s/listen input-selector
+              :insert-update
+              (fn [d]
+                (reset! query-string (s/text input-selector))))
+    (s/listen button-selector
+              :action
+              (fn [e]
+                (s/selection! button-group (s/select statuses [:#all]))
+                (s/config! panel :items (-> @query-string
+                                            (build-search-criteria :or)
+                                            (search-all)
+                                            vec
+                                            (draw-collection)
+                                            (conj top)))))))
 
 ; (defn attach-status-listeners
 ;   []
@@ -137,6 +169,7 @@
   [todos]
   (let [items (draw-collection todos)]
     (attach-status-listeners)
+    (attach-search-listeners)
     (-> frame
       (s/config! :content (s/config! panel :items (conj items top)))
       (s/show!))))

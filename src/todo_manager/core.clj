@@ -2,7 +2,8 @@
   (:require [todo-manager.data-handler.writer
              :refer [write-collection]]
             [todo-manager.data-handler.reader
-             :refer [parse-collection]]
+             :refer [parse-collection
+                     parse-time]]
             [todo-manager.data-handler.storage
              :refer [add-todo
                      new-todos
@@ -16,7 +17,8 @@
              :refer [search-todo
                      search-all
                      order-by-priority
-                     order-by-progress]]
+                     order-by-progress
+                     build-search-criteria]]
             [clj-time.core :as t]
             [clj-time.periodic :as p]
             [clj-time.local :as l]
@@ -73,9 +75,15 @@
                      (into @todos-in-progress)
                      (into @new-todos)
                      (into @completed-todos)))
-  ; (ui/main-frame)
-  (println (search-all {:tag "exam"}))
-  (println (search-todo @new-todos [:or {:tag "exam"} {:priority 2}]))
+  ; (println (build-search-criteria "2014-07-12" :or))
+  ; (println (search-todo @new-todos (build-search-criteria "2014-07-12" :or)))
+  ; (println (search-all (build-search-criteria "2014-07-12" :or)))
+  ; (println cr)
+  ; (println (re-matches #"\d{4}(?:-|/)\d{2}(?:-|/)\d{2}" "2014-09-12"))
+  ; (println (parse-time (re-matches #"\d{4}(?:-|/)\d{2}(?:-|/)\d{2}" "2014-09-12")))
+  ; (println (search-todo @todos-in-progress cr))
+
+  ; (println (search-todo @todos-in-progress [:or {:tag "exam"}]))
   ; (delete-todo (first (search-todo @todos-in-progress {:goal "Voip exam"})) status-mapper)
   ; (mark-completed (first (search-todo @todos-in-progress {:goal (:goal todo3)})) status-mapper)
   ; (println (first (search-todo @todos-in-progress {:goal (:goal todo2)})))

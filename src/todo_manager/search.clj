@@ -1,17 +1,22 @@
 (ns todo-manager.search
   (:require [clojure.set :refer [union intersection
                                  difference]]
+            [clojure.contrib.string :refer [substring?]]
+            [clojure.string :refer [lower-case split trim]]
             [todo-manager.data-handler.storage
              :refer [new-todos
                      todos-in-progress
-                     completed-todos]]))
+                     completed-todos]]
+            [todo-manager.data-handler.reader
+             :refer [parse-time]]))
 
 
 (defn match-criterion?
   [[attr value] todo]
-  (if (= attr :tag)
-    ((:tags todo) value)
-    (= (attr todo) value)))
+  (cond
+    (= attr :tag) ((:tags todo) value)
+    (= attr :goal) (substring? (lower-case value) (lower-case (:goal todo)))
+    :else (= (attr todo) value)))
 
 (defn filter-by
   [criterion coll]
@@ -58,3 +63,21 @@
 (defn order-by-progress
   [coll]
   (lazy-qsort (vec coll) progress-comparator))
+
+(defn add-time-criteria
+  [words]
+  (for [word words
+        tag [:start_date :end_date]
+        :when (re-matches #"\d{4}(?:-|/)\d{2}(?:-|/)\d{2}" word)]
+    {tag (parse-time word)}))
+
+(defn build-search-criteria
+  [input conjuction]
+  (let [words (map trim (split input #","))
+        tags [:tag :goal]]
+    (-> [conjuction]
+        (into (for [word words
+                    tag tags
+                    :when (nil? (re-matches #"\d{4}(?:-|/)\d{2}(?:-|/)\d{2}" word))]
+                {tag word}))
+        (into (add-time-criteria words)))))
