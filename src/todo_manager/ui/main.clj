@@ -3,7 +3,7 @@
             [todo-manager.data-handler.writer
              :refer [unparse-time]]
             [todo-manager.data-handler.storage
-             :refer [delete-todo status-mapper
+             :refer [delete-todo status-mapper add-todo
                      new-todos todos-in-progress completed-todos]]
             [todo-manager.search :refer [build-search-criteria
                                          search-all]]
@@ -11,8 +11,10 @@
 
 (declare draw-collection)
 (declare draw-todo)
+(declare draw-form)
 
 (def query-string (atom ""))
+(def todo (atom {}))
 
 (def frame (s/frame :title "TODO Manager" :height 640 :width 480
                     :resizable? true :visible? true :on-close :exit))
@@ -31,11 +33,11 @@
                                                      :halign :center
                                                      :valign :center)]))
 
-(def add-todo (s/button :text "Create TODO"
+(def add-todo-button (s/button :text "Create TODO"
                         :halign :center
                         :valign :center))
 
-(def top (s/vertical-panel :items [statuses search-bar add-todo]))
+(def top (s/vertical-panel :items [statuses search-bar add-todo-button]))
 
 (def panel (s/flow-panel :items [top]
                          :align :left
@@ -57,7 +59,15 @@
             :listen [:action (fn [e] (s/selection! button-group (s/select statuses [:#all]))
                                (s/config! panel :items (-> (resolve-todos-type)
                                                            (draw-collection)
-                                                           (conj top))))]))
+                                                           (conj top)))
+                               (s/config! frame :content panel)
+                               (s/show! frame))]))
+
+; (def todo-form
+  ; (s/vertical-panel :text "Create TODO"))
+
+(def create-button
+  (s/button :text "Create" :id :create))
 
 (defn attach-todo-listeners
   [delete-button edit-button todo]
@@ -124,19 +134,65 @@
                                             (draw-collection)
                                             (conj top)))))))
 
-; (defn attach-status-listeners
-;   []
-;   (let [selectors (map #(s/select statuses [%])
-;                        [:#new :#in-progress :#completed])
-;         status-map (zipmap [:new :in-progress :completed] selectors)]
-;     (println status-map)
-;     (for [[status selector] status-map]
-;       (s/listen selector
-;             :action
-;             (fn [e] (s/config! selector :selected? true)
-;               (s/config! panel :items (-> (status status-mapper)
-;                                           (draw-collection)
-;                                           (conj top))))))))
+(def form-button-group (s/button-group))
+
+(defn attach-todo-form-listeners
+  []
+  (s/listen (s/select frame [:#goal])
+              :insert-update (fn [e]
+                               (s/text (s/select frame [:#goal]))
+                               (swap! todo assoc :goal (s/text (s/select frame [:#goal])))
+                               (println @todo)))
+  (s/listen (s/select frame [:#start_date])
+              :insert-update (fn [e] (swap! todo assoc :start_date (s/text (s/select frame [:#start_date])))
+                               (println @todo)))
+  (s/listen (s/select frame [:#end_date])
+              :insert-update (fn [e] (swap! todo assoc :end_date (s/text (s/select frame [:#end_date])))
+                               (println @todo)))
+  (s/listen (s/select frame [:#priority])
+              :insert-update (fn [e] (swap! todo assoc :priority (s/text (s/select frame [:#priority])))
+                               (println @todo)))
+  (s/listen (s/select frame [:#progress])
+              :insert-update (fn [e] (swap! todo assoc :progress (s/text (s/select frame [:#progress])))
+                               (println @todo)))
+  (s/listen form-button-group
+              :action (fn [e] (swap! todo assoc :status (s/text (s/selection form-button-group)))
+                               (println @todo)))
+  (s/listen (s/select frame [:#tags])
+              :insert-update (fn [e] (swap! todo assoc :tags (s/text (s/select frame [:#tags])))
+                               (println @todo)))
+  (s/listen create-button
+            :action
+            (fn [e]
+              (println @todo)
+              (add-todo @todo status-mapper))))
+
+(defn attach-create-listeners
+  []
+  (s/listen add-todo-button
+            :action (fn [e] (s/config! frame :content (draw-form))
+                      (attach-todo-form-listeners))))
+
+(defn draw-form
+  []
+  (let [properties [:goal :start_date :end_date :progress :priority :tags]
+        property-panels (for [property properties]
+                          (s/flow-panel :align :left
+                                        :hgap 10
+                                        :vgap 20
+                                        :items [(s/label :text (name property))
+                                                (s/text :id property :halign :left :columns 40 :margin 15)]))
+        status (s/flow-panel :items [(s/radio :text "new" :group form-button-group)
+                                   (s/radio :text "in-progress" :group form-button-group)
+                                   (s/radio :text "completed" :group form-button-group)]
+                           :align :center
+                           :hgap 20 :vgap 20)]
+    (s/vertical-panel :id :todo-form
+                      :items (-> property-panels
+                                 vec
+                                 (conj status)
+                                 (conj create-button)
+                                 (conj back-button)))))
 
 (defn draw-todo
   [{status :status start_date :start_date end_date :end_date goal :goal
@@ -170,6 +226,7 @@
   (let [items (draw-collection todos)]
     (attach-status-listeners)
     (attach-search-listeners)
+    (attach-create-listeners)
     (-> frame
       (s/config! :content (s/config! panel :items (conj items top)))
       (s/show!))))

@@ -29,36 +29,36 @@
   {:start_date "2014/07/12"
    :end_date "2014/07/23"
    :goal "Going to run"
-   :priority 2
+   :priority "2"
    :status :new
-   :progress 0.0})
+   :progress "0.0"})
 
 (def todo2
   {:start_date "2014/06/24"
    :end_date "2014/07/05"
    :goal "Writing my project"
-   :priority 7
+   :priority "6"
    :tags "clojure, exam"
    :status :in-progress
-   :progress 0.2})
+   :progress "0.2"})
 
 (def todo5
   {:start_date "2014/06/24"
    :end_date "2014/07/05"
    :goal "Research for my project"
-   :priority 7
+   :priority "5"
    :tags "clojure, exam"
    :status :in-progress
-   :progress 0.6})
+   :progress "0.6"})
 
 (def todo3
   {:start_date "2014/06/24"
    :end_date "2014/07/05"
    :goal "Voip exam"
-   :priority 7
+   :priority "7"
    :tags "exam, voip"
    :status :in-progress
-   :progress 0.2})
+   :progress "0.2"})
 
 (defn -main
   "I don't do a whole lot."
@@ -66,11 +66,11 @@
   (swap! new-todos into (parse-collection "resources/new_todos.txt"))
   (swap! todos-in-progress into (parse-collection "resources/todos_in_progress.txt"))
   (swap! completed-todos into (parse-collection "resources/completed_todos.txt"))
-  (add-todo todo1 status-mapper)
-  (add-todo todo5 status-mapper)
-  (add-todo todo2 status-mapper)
-  (add-todo todo3 status-mapper)
-  (add-todo todo3 status-mapper)
+  ; (add-todo todo1 status-mapper)
+  ; (add-todo todo5 status-mapper)
+  ; (add-todo todo2 status-mapper)
+  ; (add-todo todo3 status-mapper)
+  ; (add-todo todo3 status-mapper)
   (ui/draw (-> []
                      (into @todos-in-progress)
                      (into @new-todos)
