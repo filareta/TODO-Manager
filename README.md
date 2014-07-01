@@ -1,14 +1,13 @@
-# todo-manager
+TODO-Manager
 
-A Clojure library designed to ... well, that part is up to you.
 
-## Usage
+Simple desktop application for managing TODOS.
 
-FIXME
-
-## License
+License
 
 Copyright © 2014 FIXME
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
+
+
