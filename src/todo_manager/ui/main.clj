@@ -5,8 +5,8 @@
             [todo-manager.data-handler.storage
              :refer [delete-todo status-mapper add-todo
                      new-todos todos-in-progress completed-todos]]
-            [todo-manager.search :refer [build-search-criteria
-                                         search-all]]
+            [todo-manager.data-filters.search
+             :refer [build-search-criteria search-all]]
             [clojure.string :refer [join]]))
 
 (declare draw-collection)

@@ -8,11 +8,6 @@
                      todos-in-progress completed-todos
                      status-mapper delete-todo
                      mark-completed reopen]]
-            [todo-manager.search
-             :refer [search-todo search-all
-                     order-by-priority
-                     order-by-progress
-                     build-search-criteria]]
             [todo-manager.notifier.notify
              :refer [check-for-notifications notification]]
             [clojure.string :refer [join]]
