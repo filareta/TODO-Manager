@@ -21,23 +21,29 @@
 
 (def button-group (s/button-group))
 
-(def statuses (s/flow-panel :items [(s/radio :text "new" :id :new :group button-group)
-                                   (s/radio :text "in-progress" :id :in-progress :group button-group)
-                                   (s/radio :text "completed" :id :completed :group button-group)
-                                   (s/radio :text "all" :id :all :selected? true :group button-group)]
-                           :align :center
-                           :hgap 20 :vgap 20))
+(def statuses (s/flow-panel :items [(s/radio :text "new" :id :new
+                                             :group button-group)
+                                    (s/radio :text "in-progress" :id :in-progress
+                                             :group button-group)
+                                    (s/radio :text "completed" :id :completed
+                                             :group button-group)
+                                    (s/radio :text "all" :id :all :selected? true
+                                             :group button-group)]
+                           :align :center :hgap 20 :vgap 20))
 
-(def search-bar (s/horizontal-panel :items [(s/text  :text "Search your TODOs here!" :id :input)
-                                           (s/button :text "Search" :id :search-button
-                                                     :halign :center
-                                                     :valign :center)]))
+(def search-bar (s/horizontal-panel :items
+                                    [(s/text  :text "Search your TODOs here!"
+                                              :id :input)
+                                    (s/button :text "Search" :id :search-button
+                                              :halign :center :valign :center)]))
 
 (def add-todo-button (s/button :text "Create TODO"
                         :halign :center
                         :valign :center))
 
-(def top (s/vertical-panel :items [statuses search-bar add-todo-button]))
+(def top (s/vertical-panel :items
+                           [statuses search-bar
+                            add-todo-button]))
 
 (def panel (s/flow-panel :items [top]
                          :align :left
@@ -56,26 +62,31 @@
 
 (def back-button
   (s/button :text "Back" :id :back
-            :listen [:action (fn [e] (s/selection! button-group (s/select statuses [:#all]))
-                               (s/config! panel :items (-> (resolve-todos-type)
-                                                           (draw-collection)
-                                                           (conj top)))
-                               (s/config! frame :content panel)
-                               (s/show! frame))]))
-
-; (def todo-form
-  ; (s/vertical-panel :text "Create TODO"))
+            :listen
+            [:action
+             (fn [e]
+               (s/selection! button-group (s/select statuses [:#all]))
+               (s/config! panel :items (-> (resolve-todos-type)
+                                           (draw-collection)
+                                           (conj top)))
+               (s/config! frame :content panel)
+               (s/show! frame))]))
 
 (def create-button
   (s/button :text "Create" :id :create))
 
 (defn attach-todo-listeners
   [delete-button edit-button todo]
-  (s/listen delete-button :action (fn [e] (delete-todo todo status-mapper)
-                                    (s/config! panel :items (-> (resolve-todos-type)
-                                                                (draw-collection)
-                                                                (conj top)))))
-  (s/listen edit-button :action (fn [e] (s/config! panel :items [(draw-todo todo) back-button]))))
+  (s/listen delete-button
+            :action
+            (fn [e] (delete-todo todo status-mapper)
+                    (s/config! panel :items (-> (resolve-todos-type)
+                                                (draw-collection)
+                                                (conj top)))))
+  (s/listen edit-button
+            :action
+            (fn [e] (s/config! panel :items
+                                     [(draw-todo todo) back-button]))))
 
 (defn attach-status-listeners
   []
@@ -139,38 +150,50 @@
 (defn attach-todo-form-listeners
   []
   (s/listen (s/select frame [:#goal])
-              :insert-update (fn [e]
-                               (s/text (s/select frame [:#goal]))
-                               (swap! todo assoc :goal (s/text (s/select frame [:#goal])))
-                               (println @todo)))
+              :insert-update
+              (fn [e] (swap! todo assoc
+                                  :goal
+                                  (s/text (s/select frame [:#goal])))))
   (s/listen (s/select frame [:#start_date])
-              :insert-update (fn [e] (swap! todo assoc :start_date (s/text (s/select frame [:#start_date])))
-                               (println @todo)))
+              :insert-update
+              (fn [e] (swap! todo assoc
+                                  :start_date
+                                  (s/text (s/select frame [:#start_date])))))
   (s/listen (s/select frame [:#end_date])
-              :insert-update (fn [e] (swap! todo assoc :end_date (s/text (s/select frame [:#end_date])))
-                               (println @todo)))
+              :insert-update
+              (fn [e] (swap! todo assoc
+                                  :end_date
+                                  (s/text (s/select frame [:#end_date])))))
   (s/listen (s/select frame [:#priority])
-              :insert-update (fn [e] (swap! todo assoc :priority (s/text (s/select frame [:#priority])))
-                               (println @todo)))
+              :insert-update
+              (fn [e] (swap! todo assoc
+                                  :priority
+                                  (s/text (s/select frame [:#priority])))))
   (s/listen (s/select frame [:#progress])
-              :insert-update (fn [e] (swap! todo assoc :progress (s/text (s/select frame [:#progress])))
-                               (println @todo)))
+              :insert-update
+              (fn [e] (swap! todo assoc
+                                  :progress
+                                  (s/text (s/select frame [:#progress])))))
   (s/listen form-button-group
-              :action (fn [e] (swap! todo assoc :status (s/text (s/selection form-button-group)))
-                               (println @todo)))
+              :action
+              (fn [e] (swap! todo assoc
+                                  :status
+                                  (s/text (s/selection form-button-group)))))
   (s/listen (s/select frame [:#tags])
-              :insert-update (fn [e] (swap! todo assoc :tags (s/text (s/select frame [:#tags])))
-                               (println @todo)))
+              :insert-update
+              (fn [e] (swap! todo assoc
+                                  :tags
+                                  (s/text (s/select frame [:#tags])))))
   (s/listen create-button
             :action
             (fn [e]
-              (println @todo)
               (add-todo @todo status-mapper))))
 
 (defn attach-create-listeners
   []
   (s/listen add-todo-button
-            :action (fn [e] (s/config! frame :content (draw-form))
+            :action (fn [e]
+                      (s/config! frame :content (draw-form))
                       (attach-todo-form-listeners))))
 
 (defn draw-form
@@ -181,12 +204,16 @@
                                         :hgap 10
                                         :vgap 20
                                         :items [(s/label :text (name property))
-                                                (s/text :id property :halign :left :columns 40 :margin 15)]))
-        status (s/flow-panel :items [(s/radio :text "new" :group form-button-group)
-                                   (s/radio :text "in-progress" :group form-button-group)
-                                   (s/radio :text "completed" :group form-button-group)]
-                           :align :center
-                           :hgap 20 :vgap 20)]
+                                                (s/text :id property :halign :left
+                                                        :columns 40 :margin 15)]))
+        status (s/flow-panel :items [(s/radio :text "new"
+                                              :group form-button-group)
+                                     (s/radio :text "in-progress"
+                                              :group form-button-group)
+                                     (s/radio :text "completed"
+                                              :group form-button-group)]
+                             :align :center
+                             :hgap 20 :vgap 20)]
     (s/vertical-panel :id :todo-form
                       :items (-> property-panels
                                  vec
@@ -194,42 +221,11 @@
                                  (conj create-button)
                                  (conj back-button)))))
 
-; (defn draw-edit-form
-;   [todo]
-;   (let [properties
-;         [:goal :start_date
-;          :end_date :progress
-;          :priority :tags]
-
-;         property-panels
-;         (for [property properties]
-;           (s/flow-panel :align :left
-;                         :hgap 10
-;                         :vgap 20
-;                         :items [(s/label :text (name property))
-;                                 (s/text :text (property todo)
-;                                         :id property
-;                                         :halign :left
-;                                         :columns 40
-;                                         :margin 15)]))
-
-;         status
-;         (s/flow-panel :items [(s/radio :text "new" :id :new :group form-button-group)
-;                                    (s/radio :text "in-progress" :id :in-progress :group form-button-group)
-;                                    (s/radio :text "completed"  :id :completed :group form-button-group)]
-;                            :align :center
-;                            :hgap 20 :vgap 20)]
-;     (s/selection! form-button-group (s/select ))
-;     (s/vertical-panel :id :todo-form
-;                       :items (-> property-panels
-;                                  vec
-;                                  (conj status)
-;                                  (conj create-button)
-;                                  (conj back-button)))))
-
 (defn draw-todo
-  [{status :status start_date :start_date end_date :end_date goal :goal
-    priority :priority progress :progress tags :tags :as todo}]
+  [{status :status start_date :start_date
+    end_date :end_date goal :goal
+    priority :priority progress :progress
+    tags :tags :as todo}]
   (let [delete-button (s/button :text "Delete"
                                 :halign :center
                                 :valign :center
@@ -244,10 +240,14 @@
                                        :v-text-position :center)
                             (s/progress-bar :orientation :horizontal
                                             :value (* 100 progress))
-                            (s/label :text (str "Start date: " (unparse-time start_date)))
-                            (s/label :text (str "End date: " (unparse-time end_date)))
-                            (s/label :text (str "Priority: " priority))
-                            (s/label :text (str "Tags: " (join ", " tags)))
+                            (s/label :text (str "Start date: "
+                                                (unparse-time start_date)))
+                            (s/label :text (str "End date: "
+                                                (unparse-time end_date)))
+                            (s/label :text (str "Priority: "
+                                                priority))
+                            (s/label :text (str "Tags: "
+                                                (join ", " tags)))
                             delete-button edit-button])))
 
 (defn draw-collection
