@@ -10,15 +10,11 @@
   (with-open [wtr (writer file-path :append keep-all)]
     (.write wtr (str line "\n"))))
 
-; (defn attach-properties
-;   [todo]
-;   (if (:tags todo)
-;     (merge todo {:status :new :progress 0.0})
-;     (merge todo {:status :new :progress 0.0 :tags #{}})))
-
 (defn unparse-time
   [date]
-  (unparse (formatter (default-time-zone) "YYYY/MM/dd" "YYYY-MM-dd") date))
+  (unparse (formatter (default-time-zone)
+                      "YYYY/MM/dd" "YYYY-MM-dd")
+           date))
 
 (defn serialize-entry
   [[key value]]
@@ -33,7 +29,8 @@
 
 (defn write-todo
   [{goal :goal start_date :start_date
-    end_date :end_date priority :priority :as todo} filename]
+    end_date :end_date priority :priority :as todo}
+   filename]
   (->> todo
        (map serialize-entry)
        (join)

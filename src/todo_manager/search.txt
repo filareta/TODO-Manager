@@ -1,8 +1,0 @@
-Criteria
-=======================================
-
-- map - {:goal "Writting"}, {:status :new}
-- tag - {:tag "clojure"} , all todos, contained tag clojure
-- [:and cr1 cr2]
-- [:or cr1 cr2]
-- [:not cr]

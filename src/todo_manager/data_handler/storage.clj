@@ -33,13 +33,10 @@
              (write-collection @reference (:completed file-mapper))))
 
 (defn add-todo
-  [{status :status
-    end_date :end_date
-    start_date :start_date
-    tags :tags
-    priority :priority
-    progress :progress
-    :as todo} mapper]
+  [{status :status end_date :end_date
+    start_date :start_date tags :tags
+    priority :priority progress :progress :as todo}
+   mapper]
   (let [status (if (keyword? status) status (keyword status))
         todo
         (-> todo
@@ -51,13 +48,10 @@
         collection (status mapper)]
     (swap! collection conj todo)))
 
-
-;first should be found or parsed, time and tags are different
-;found by goal, goal should be unique
-
 (defn delete-todo
   [{status :status :as todo} mapper]
-  (swap! (status mapper) (fn [coll] (filter #(not= % todo) coll))))
+  (swap! (status mapper) (fn [coll]
+                           (filter #(not= % todo) coll))))
 
 (defn change-status-progress
   [todo mapper status progress]
@@ -68,7 +62,6 @@
              (assoc :status status)
              (assoc :progress progress))))
 
-;same first shoul be found
 (defn mark-completed
   [todo mapper]
   (change-status-progress todo mapper :completed 1.0))

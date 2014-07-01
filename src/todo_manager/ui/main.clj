@@ -194,6 +194,39 @@
                                  (conj create-button)
                                  (conj back-button)))))
 
+; (defn draw-edit-form
+;   [todo]
+;   (let [properties
+;         [:goal :start_date
+;          :end_date :progress
+;          :priority :tags]
+
+;         property-panels
+;         (for [property properties]
+;           (s/flow-panel :align :left
+;                         :hgap 10
+;                         :vgap 20
+;                         :items [(s/label :text (name property))
+;                                 (s/text :text (property todo)
+;                                         :id property
+;                                         :halign :left
+;                                         :columns 40
+;                                         :margin 15)]))
+
+;         status
+;         (s/flow-panel :items [(s/radio :text "new" :id :new :group form-button-group)
+;                                    (s/radio :text "in-progress" :id :in-progress :group form-button-group)
+;                                    (s/radio :text "completed"  :id :completed :group form-button-group)]
+;                            :align :center
+;                            :hgap 20 :vgap 20)]
+;     (s/selection! form-button-group (s/select ))
+;     (s/vertical-panel :id :todo-form
+;                       :items (-> property-panels
+;                                  vec
+;                                  (conj status)
+;                                  (conj create-button)
+;                                  (conj back-button)))))
+
 (defn draw-todo
   [{status :status start_date :start_date end_date :end_date goal :goal
     priority :priority progress :progress tags :tags :as todo}]
@@ -220,6 +253,10 @@
 (defn draw-collection
   [todos]
   (map draw-todo todos))
+
+(defn show-notification
+  [notification]
+  (s/alert frame notification))
 
 (defn draw
   [todos]

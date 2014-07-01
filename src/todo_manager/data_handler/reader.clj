@@ -14,7 +14,9 @@
 
 (defn parse-time
   [date]
-  (parse (formatter (default-time-zone) "YYYY/MM/dd" "YYYY-MM-dd") date))
+  (parse (formatter (default-time-zone)
+                    "YYYY/MM/dd" "YYYY-MM-dd")
+         date))
 
 (defn deserialize
   [[str-key value]]
