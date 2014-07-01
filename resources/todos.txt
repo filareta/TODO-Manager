@@ -1,2 +1,0 @@
-status: new; progress: 0.0; goal: Going to run; end_date: 21/05/2014; start_date: 16/05/2014; priority: 2; tags: []; 
-status: new; progress: 0.0; goal: Writing my project; end_date: 21/05/2014; start_date: 16/05/2014; priority: 7; tags: clojure, exam; 
