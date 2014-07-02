@@ -45,8 +45,7 @@
                 (assoc :progress (read-string progress))
                 (assoc :status (keyword status)))
         collection ((keyword status) mapper)]
-    (swap! collection conj todo)
-    (println @collection)))
+    (swap! collection conj todo)))
 
 (defn delete-todo
   [{status :status :as todo} mapper]

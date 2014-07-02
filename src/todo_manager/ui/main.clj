@@ -14,7 +14,6 @@
 (declare draw-form)
 (declare draw-edit-form)
 
-(def query-string (atom ""))
 (def todo (atom {}))
 
 (def frame (s/frame :title "TODO Manager" :height 640 :width 480
@@ -121,15 +120,12 @@
   []
   (let [input-selector (s/select search-bar [:#input])
         button-selector (s/select search-bar [:#search-button])]
-    (s/listen input-selector
-              :insert-update
-              (fn [d]
-                (reset! query-string (s/text input-selector))))
     (s/listen button-selector
               :action
               (fn [e]
                 (s/selection! button-group (s/select statuses [:#all]))
-                (s/config! panel :items (-> @query-string
+                (s/config! panel :items (-> input-selector
+                                            (s/config :text)
                                             (build-search-criteria :or)
                                             (search-all)
                                             vec
@@ -160,7 +156,6 @@
             :action
             (fn [e]
               (collect-text)
-              (println @todo)
               (add-todo @todo status-mapper))))
 
 (defn attach-create-listener
@@ -177,7 +172,6 @@
             (fn [e]
               (delete-todo local-todo status-mapper)
               (collect-text)
-              (println @todo)
               (add-todo @todo status-mapper))))
 
 (defn attach-todo-listeners
