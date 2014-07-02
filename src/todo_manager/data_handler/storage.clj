@@ -50,7 +50,7 @@
 (defn delete-todo
   [{status :status :as todo} mapper]
   (swap! (status mapper) (fn [coll]
-                           (filter #(not= % todo) coll))))
+                           (set (filter #(not= % todo) coll)))))
 
 (defn change-status-progress
   [todo mapper status progress]

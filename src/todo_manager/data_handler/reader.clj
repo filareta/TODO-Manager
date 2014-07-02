@@ -7,7 +7,7 @@
 
 (defn parse-tags
   [value]
-  (if (or (nil? value)) #{}
+  (if (blank? value) #{}
     (->> (split value #",")
          (map trim)
          (set))))
