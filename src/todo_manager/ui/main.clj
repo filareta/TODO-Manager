@@ -13,6 +13,7 @@
 (declare draw-todo)
 (declare draw-form)
 (declare draw-edit-form)
+(declare redraw-main-panel)
 
 (def todo (atom {}))
 
@@ -66,11 +67,7 @@
             [:action
              (fn [e]
                (s/selection! button-group (s/select statuses [:#all]))
-               (s/config! panel :items (-> (resolve-todos-type)
-                                           (draw-collection)
-                                           (conj top)))
-               (s/config! frame :content panel)
-               (s/show! frame))]))
+               (redraw-main-panel (resolve-todos-type)))]))
 
 (def create-button
   (s/button :text "Create" :id :create))
@@ -162,8 +159,7 @@
   []
   (s/listen add-todo-button
             :action (fn [e]
-                      (s/config! frame :content (draw-form))
-                      (attach-todo-form-listeners))))
+                      (s/config! frame :content (draw-form)))))
 
 (defn attach-edit-save-listener
   [local-todo]
@@ -188,7 +184,6 @@
             (fn [e]
               (s/config! panel :items
                                [(draw-edit-form todo) back-button])
-              (attach-todo-form-listeners)
               (attach-edit-save-listener todo))))
 
 (defn draw-form
@@ -279,12 +274,25 @@
   [notification]
   (s/alert frame notification))
 
+(defn redraw-main-panel
+  [coll]
+  (let [delete-buttons (s/select panel [:.delete])
+        edit-buttons (s/select panel [:.edit])
+        buttons (into delete-buttons edit-buttons)]
+    (doseq [button buttons
+            listener (.getActionListeners button)]
+      (.removeActionListener button listener)))
+  (->> (s/config! panel :items (conj (draw-collection coll) top))
+       (s/config! frame :content)
+       (s/show!)))
+
 (defn draw
   [todos]
   (let [items (draw-collection todos)]
     (attach-status-listeners)
     (attach-search-listeners)
     (attach-create-listener)
+    (attach-todo-form-listeners)
     (-> frame
       (s/config! :content (s/config! panel :items (conj items top)))
       (s/show!))))
