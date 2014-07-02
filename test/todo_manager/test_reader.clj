@@ -27,7 +27,7 @@
                         :start_date (to-local-date-time (date-time 2014 6 24))
                         :end_date (to-local-date-time (date-time 2014 7 5))}]]
 
-    (testing "parse tags"
+  (testing "parse tags"
     (is (= (parse-tags "clojure, exam, clojure, july")
            #{"clojure" "exam" "july"}))
     (is (= (parse-tags "    ")
