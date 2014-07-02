@@ -1,2 +1,2 @@
-status: new; progress: 0.0; goal: Going to run; end_date: 2014/07/23; start_date: 2014/07/03; priority: 2; tags: ; 
-status: new; progress: 0.0; goal: Travelling abroad; end_date: 2014/07/23; start_date: 2014/07/12; priority: 2; tags: journey; 
+status: new; progress: 0.0; goal: Going to run; end_date: 2014/07/23; start_date: 2014/07/12; priority: 2; tags: ; 
+status: new; tags: sports; progress: 0; priority: 4; end_date: 2014/10/03; start_date: 2014/05/01; goal: Going to tae bo; 

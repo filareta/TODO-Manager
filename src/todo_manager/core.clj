@@ -65,10 +65,10 @@
          into (parse-collection "resources/todos_in_progress.txt"))
   (swap! completed-todos
          into (parse-collection "resources/completed_todos.txt"))
-  ; (add-todo todo5 status-mapper)
-  ; (add-todo todo2 status-mapper)
-  ; (add-todo todo1 status-mapper)
-  ; (add-todo todo3 status-mapper)
+  (add-todo todo5 status-mapper)
+  (add-todo todo2 status-mapper)
+  (add-todo todo1 status-mapper)
+  (add-todo todo3 status-mapper)
   (ui/draw (-> []
                (into @todos-in-progress)
                (into @new-todos)

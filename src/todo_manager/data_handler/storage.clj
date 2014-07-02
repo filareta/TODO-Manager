@@ -37,16 +37,16 @@
     start_date :start_date tags :tags
     priority :priority progress :progress :as todo}
    mapper]
-  (let [status (if (keyword? status) status (keyword status))
-        todo
-        (-> todo
-            (assoc :start_date (parse-time start_date))
-            (assoc :end_date (parse-time end_date))
-            (assoc :tags (parse-tags tags))
-            (assoc :priority (read-string priority))
-            (assoc :progress (read-string progress)))
-        collection (status mapper)]
-    (swap! collection conj todo)))
+  (let [todo (-> todo
+                (assoc :start_date (parse-time start_date))
+                (assoc :end_date (parse-time end_date))
+                (assoc :tags (parse-tags tags))
+                (assoc :priority (read-string priority))
+                (assoc :progress (read-string progress))
+                (assoc :status (keyword status)))
+        collection ((keyword status) mapper)]
+    (swap! collection conj todo)
+    (println @collection)))
 
 (defn delete-todo
   [{status :status :as todo} mapper]

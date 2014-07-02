@@ -63,7 +63,7 @@
 (defn check-for-notifications
   []
   (while true
-    (Thread/sleep 5000)
+    (Thread/sleep 300000)
     (let [approaching-deadline (check-for-todos-approaching-deadline)
           incomming (check-for-incomming-todos)]
       (if (or (seq incomming)
