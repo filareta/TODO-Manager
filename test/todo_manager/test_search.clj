@@ -8,7 +8,7 @@
 
 
 (deftest test-search-todos
-  (let [coll (set (parse-collection "resources/test_search.txt"))
+  (let [coll (set (parse-collection "resources/test/test_search.txt"))
         invoke-search (fn [criteria]
                         (set (map #(:goal %)
                                   (search-todo coll criteria))))

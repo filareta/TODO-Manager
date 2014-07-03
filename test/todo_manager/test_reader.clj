@@ -46,7 +46,7 @@
            expected-parsed-todo)))
 
   (testing "parse collection"
-    (is (= (set (parse-collection "resources/test_reader.txt"))
+    (is (= (set (parse-collection "resources/test/test_reader.txt"))
            (set expected-coll))))))
 
 

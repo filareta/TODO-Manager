@@ -37,6 +37,6 @@
              expected-string)))
 
     (testing "write collection"
-      (write-collection coll "resources/test_writer.clj")
-      (is (= (set (parse-collection "resources/test_writer.clj"))
+      (write-collection coll "resources/test/test_writer.clj")
+      (is (= (set (parse-collection "resources/test/test_writer.clj"))
              coll)))))
