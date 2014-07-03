@@ -1,0 +1,5 @@
+status: in-progress; progress: 0.6; goal: Research for my project; end_date: 2014/07/05; start_date: 2014/06/24; priority: 5; tags: clojure, exam;
+status: in-progress; tags: sport; progress: 0.8; priority: 5; end_date: 2014/07/04; start_date: 2014/07/01; goal: Training tae bo;
+status: in-progress; progress: 0.2; goal: Writing my project; end_date: 2014/07/05; start_date: 2014/06/24; priority: 6; tags: clojure, exam;
+status: new; progress: 0.0; goal: Going to run; end_date: 2014/07/23; start_date: 2014/07/12; priority: 2; tags: ;
+status: new; tags: sport; progress: 0.0; priority: 2; end_date: 2014/07/23; start_date: 2014/07/04; goal: Going to run;

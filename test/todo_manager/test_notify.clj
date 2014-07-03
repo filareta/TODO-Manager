@@ -1,8 +1,6 @@
 (ns todo-manager.test-notify
   (:require [clojure.test :refer :all]
             [todo-manager.notifier.notify :refer :all]
-            [todo-manager.data-handler.reader
-             :refer [parse-collection]]
             [clj-time.local :refer [to-local-date-time]]
             [clj-time.core :refer [date-time plus minus]]
             [clj-time.local :refer [local-now]]))
