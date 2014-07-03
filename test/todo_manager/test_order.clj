@@ -29,6 +29,7 @@
               "Going to run"
               "Research for my project"
               "Going to swim"])))
+
     (testing "order todos by progress"
       (is (= (progresses ordered-by-progress)
              [0.9 0.8 0.5 0.0 0.0]))
