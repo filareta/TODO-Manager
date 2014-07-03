@@ -34,14 +34,17 @@
            #{}))
     (is (= (parse-tags nil)
            #{})))
+
   (testing "parse time"
     (is (= (parse-time "2014/07/04")
            (to-local-date-time (date-time 2014 7 4))))
     (is (= (parse-time "2014-07-08")
            (to-local-date-time (date-time 2014 7 8)))))
+
   (testing "parse todo"
     (is (= (parse-todo todo)
            expected-parsed-todo)))
+
   (testing "parse collection"
     (is (= (set (parse-collection "resources/test_reader.txt"))
            (set expected-coll))))))

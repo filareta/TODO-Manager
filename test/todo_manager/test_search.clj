@@ -4,8 +4,7 @@
             [todo-manager.data-handler.reader
              :refer [parse-collection parse-time]]
             [clj-time.local :refer [to-local-date-time]]
-            [clj-time.core :refer [date-time plus minus]]
-            [clj-time.local :refer [local-now]]))
+            [clj-time.core :refer [date-time plus minus]]))
 
 
 (deftest test-search-todos
@@ -28,6 +27,7 @@
       (is (= (invoke-search {:tag "sport"})
              #{"Going to run"
                "Training tae bo"})))
+
     (testing "search todo by complex criteria"
       (is (= (invoke-search [:and {:tag "sport"}
                                   {:status :in-progress}])
@@ -45,6 +45,7 @@
              #{"Training tae bo"
                "Writing my project"
                "Going to run"})))
+
     (testing "build criteria for searching by date"
       (is (= (add-time-criteria ["2014/07/05"
                                  "2014-06-25"])
@@ -57,6 +58,7 @@
       (is (= (add-time-criteria ["exam" "run" "2014/07/05"])
              [{:start_date date-criteria}
               {:end_date date-criteria}])))
+
     (testing "build simple search criteria from string"
       (is (= (build-search-criteria "exam, run, 2014/07/05" :or)
              [:or {:tag "exam"} {:goal "exam"}

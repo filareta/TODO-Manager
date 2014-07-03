@@ -25,14 +25,17 @@
                     :tags #{"voip" "exam"}
                     :start_date (to-local-date-time (date-time 2014 6 24))
                     :end_date (to-local-date-time (date-time 2014 7 5))}}]
+
     (testing "unparse time"
       (is (or (= (unparse-time local-time)
                  "2014/07/09")
               (= (unparse-time local-time)
                  "2014-07-09"))))
+
     (testing "serialize todo"
       (is (= (serialize-todo todo)
              expected-string)))
+
     (testing "write collection"
       (write-collection coll "resources/test_writer.clj")
       (is (= (set (parse-collection "resources/test_writer.clj"))

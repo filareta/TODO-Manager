@@ -52,16 +52,19 @@
              false))
       (is (= (check-date? date not-equal-month)
              false)))
+
     (testing "incomming todos"
       (is (= (check-for-incomming-todos incomming)
              [incomming-todo]))
       (is (= (check-for-incomming-todos no-incomming)
              [])))
+
     (testing "todos approaching deadline"
       (is (= (check-for-todos-approaching-deadline approaching-deadline)
              [approaching-deadline-todo]))
       (is (= (check-for-todos-approaching-deadline no-approaching-deadline)
              [])))
+
     (testing "todos in progress"
       (is (= (notify-for-todos-in-progress in-progress)
              [todo-in-progress]))

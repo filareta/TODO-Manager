@@ -34,6 +34,7 @@
         expected-new (-> added-todo
                          (assoc :status :new)
                          (assoc :progress 0.0))]
+
     (testing "add todo"
       (add-todo todo test-status-mapper)
       (is (= @test-todos-in-progress
@@ -44,6 +45,7 @@
       (is (= @test-todos-in-progress
              #{added-todo next-added-todo}))
       (is (= (count @test-todos-in-progress) 2))
+
     (testing "delete todo"
       (delete-todo added-todo test-status-mapper)
       (is (= (count @test-todos-in-progress) 1))
@@ -54,6 +56,7 @@
       (is (= (count @test-todos-in-progress) 1))
       (delete-todo next-added-todo test-status-mapper)
       (is (= (count @test-todos-in-progress) 0)))
+
     (testing "mark completed"
       (add-todo todo test-status-mapper)
       (mark-completed added-todo test-status-mapper)
@@ -61,6 +64,7 @@
       (is (= (count @test-completed-todos) 1))
       (is (= (first @test-completed-todos)
              expected-completed)))
+
     (testing "reopen"
       (add-todo todo test-status-mapper)
       (reopen added-todo test-status-mapper)
