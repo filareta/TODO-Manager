@@ -24,29 +24,29 @@
        (= (day date1) (day date2))))
 
 (defn check-for-incomming-todos
-  []
+  [coll]
   (filter #(let [date_to_check (second (periodic-seq (local-now)
                                                      time-distance))
                  start_date (:start_date %)]
             (check-date? date_to_check start_date))
-          @new-todos))
+          coll))
 
 (defn check-for-todos-approaching-deadline
-  []
+  [coll]
   (filter #(let [date_to_check (second (periodic-seq (local-now)
                                                      time-distance))
                  end_date (:end_date %)]
              (check-date? date_to_check end_date))
-          @todos-in-progress))
+          coll))
 
 (defn notify-for-todos-in-progress
- []
+ [coll]
  (filter #(let [current-date (local-now)
                 start_date (:start_date %)
                 end_date (:end_date %)]
             (and (after? current-date start_date)
                  (before? current-date end_date)))
-         @todos-in-progress))
+         coll))
 
 (defn build-notification
   [approaching-deadline incomming]
@@ -55,8 +55,9 @@
                          "You have several TODOS approaching deadline!\n"
                          ""))
                  (conj (join "\n" approaching-deadline))
+                 (conj "\n")
                  (conj (if (seq incomming)
-                         "\nThere a few TODOS to be started soon!\n"
+                         "There a few TODOS to be started soon!\n"
                          ""))
                  (conj (join "\n" incomming)))))
 
@@ -64,8 +65,9 @@
   []
   (while true
     (Thread/sleep 300000)
-    (let [approaching-deadline (check-for-todos-approaching-deadline)
-          incomming (check-for-incomming-todos)]
+    (let [approaching-deadline
+          (check-for-todos-approaching-deadline @todos-in-progress)
+          incomming (check-for-incomming-todos @new-todos)]
       (if (or (seq incomming)
               (seq approaching-deadline))
         (reset! notification (build-notification (map #(:goal %) approaching-deadline)
