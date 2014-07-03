@@ -7,6 +7,8 @@
                      new-todos todos-in-progress completed-todos]]
             [todo-manager.data-filters.search
              :refer [build-search-criteria search-all]]
+            [todo-manager.data-filters.order
+             :refer [order-by-priority order-by-progress]]
             [clojure.string :refer [join]]))
 
 (declare draw-collection)
@@ -22,7 +24,10 @@
 
 (def button-group (s/button-group))
 
-(def statuses (s/flow-panel :items [(s/radio :text "new" :id :new
+(def ordering-button-group (s/button-group))
+
+(def statuses (s/flow-panel :items [(s/label :text "Select status")
+                                    (s/radio :text "new" :id :new
                                              :group button-group)
                                     (s/radio :text "in-progress" :id :in-progress
                                              :group button-group)
@@ -30,6 +35,14 @@
                                              :group button-group)
                                     (s/radio :text "all" :id :all :selected? true
                                              :group button-group)]
+                           :align :center :hgap 20 :vgap 20))
+
+(def ordering (s/flow-panel :items [(s/label :text "Order by")
+                                    (s/radio :text "priority" :id :priority
+                                             :selected? true
+                                             :group ordering-button-group)
+                                    (s/radio :text "progress" :id :progress
+                                             :group ordering-button-group)]
                            :align :center :hgap 20 :vgap 20))
 
 (def search-bar (s/horizontal-panel :items
@@ -42,11 +55,13 @@
                         :halign :center
                         :valign :center))
 
-(def top (s/vertical-panel :items
-                           [statuses search-bar
+(def header (s/vertical-panel :items
+                           [statuses
+                            search-bar
+                            ordering
                             add-todo-button]))
 
-(def panel (s/flow-panel :items [top]
+(def panel (s/flow-panel :items [header]
                          :align :left
                          :vgap 10
                          :hgap 20))
@@ -60,6 +75,13 @@
           (into @new-todos)
           (into @completed-todos))
       @(status status-mapper))))
+
+(defn resolve-todos-ordering
+  [coll]
+  (let [order {:progress order-by-progress
+               :priority order-by-priority}
+        selected-order (s/id-of (s/selection ordering-button-group))]
+    ((selected-order order) coll)))
 
 (def back-button
   (s/button :text "Back" :id :back
@@ -75,43 +97,32 @@
 (def complete-edit-button
   (s/button :text "Save" :id :save))
 
+(defn attach-ordering-listeners
+  []
+  (doseq [[id func] {:#priority order-by-priority
+                    :#progress order-by-progress}
+          :let [selector (s/select ordering [id])]]
+    (s/listen selector
+              :action
+              (fn [e]
+                (s/selection! ordering-button-group selector)
+                (s/config! panel :items (-> (resolve-todos-type)
+                                            func
+                                            (draw-collection)
+                                            (conj header)))))))
+
 (defn attach-status-listeners
   []
-  (let [new-selector (s/select statuses [:#new])
-        in-progress-selector (s/select statuses [:#in-progress])
-        completed-selector (s/select statuses [:#completed])
-        all-selector (s/select statuses [:#all])]
-    (s/listen new-selector
-            :action
-            (fn [e]
-              (s/selection! button-group new-selector)
-              (s/config! panel :items (-> @new-todos
-                                          (draw-collection)
-                                          (conj top)))))
-    (s/listen in-progress-selector
-            :action
-            (fn [e]
-              (s/selection! button-group in-progress-selector)
-              (s/config! panel :items (-> @todos-in-progress
-                                          (draw-collection)
-                                          (conj top)))))
-    (s/listen completed-selector
-            :action
-            (fn [e]
-              (s/selection! button-group completed-selector)
-              (s/config! panel :items (-> @completed-todos
-                                          (draw-collection)
-                                          (conj top)))))
-    (s/listen all-selector
-            :action
-            (fn [e]
-              (s/selection! button-group all-selector)
-              (s/config! panel :items (-> []
-                                          (into @todos-in-progress)
-                                          (into @new-todos)
-                                          (into @completed-todos)
-                                          (draw-collection)
-                                          (conj top)))))))
+  (doseq [id [:#new :#in-progress :#completed :#all]
+          :let [selector (s/select statuses [id])]]
+    (s/listen selector
+              :action
+              (fn [e]
+                (s/selection! button-group selector)
+                (s/config! panel :items (-> (resolve-todos-type)
+                                            (resolve-todos-ordering)
+                                            (draw-collection)
+                                            (conj header)))))))
 
 (defn attach-search-listeners
   []
@@ -126,8 +137,9 @@
                                             (build-search-criteria :or)
                                             (search-all)
                                             vec
+                                            (resolve-todos-ordering)
                                             (draw-collection)
-                                            (conj top)))))))
+                                            (conj header)))))))
 
 (def form-button-group (s/button-group))
 
@@ -177,8 +189,9 @@
             (fn [e]
               (delete-todo todo status-mapper)
               (s/config! panel :items (-> (resolve-todos-type)
+                                          (resolve-todos-ordering)
                                           (draw-collection)
-                                          (conj top)))))
+                                          (conj header)))))
   (s/listen edit-button
             :action
             (fn [e]
@@ -282,17 +295,24 @@
     (doseq [button buttons
             listener (.getActionListeners button)]
       (.removeActionListener button listener)))
-  (->> (s/config! panel :items (conj (draw-collection coll) top))
+  (let [items (-> coll
+                  (resolve-todos-ordering)
+                  (draw-collection)
+                  (conj header))]
+    (->> (s/config! panel :items items)
        (s/config! frame :content)
-       (s/show!)))
+       (s/show!))))
 
 (defn draw
   [todos]
-  (let [items (draw-collection todos)]
+  (let [items (-> todos
+                  (order-by-priority)
+                  (draw-collection))]
     (attach-status-listeners)
+    (attach-ordering-listeners)
     (attach-search-listeners)
     (attach-create-listener)
     (attach-todo-form-listeners)
     (-> frame
-      (s/config! :content (s/config! panel :items (conj items top)))
+      (s/config! :content (s/config! panel :items (conj items header)))
       (s/show!))))
