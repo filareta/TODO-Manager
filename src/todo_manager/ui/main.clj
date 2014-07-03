@@ -170,8 +170,9 @@
 (defn attach-create-listener
   []
   (s/listen add-todo-button
-            :action (fn [e]
-                      (s/config! frame :content (draw-form)))))
+            :action
+            (fn [e]
+              (s/config! frame :content (draw-form)))))
 
 (defn attach-edit-save-listener
   [local-todo]
@@ -300,8 +301,8 @@
                   (draw-collection)
                   (conj header))]
     (->> (s/config! panel :items items)
-       (s/config! frame :content)
-       (s/show!))))
+         (s/config! frame :content)
+         (s/show!))))
 
 (defn draw
   [todos]
@@ -314,5 +315,5 @@
     (attach-create-listener)
     (attach-todo-form-listeners)
     (-> frame
-      (s/config! :content (s/config! panel :items (conj items header)))
-      (s/show!))))
+        (s/config! :content (s/config! panel :items (conj items header)))
+        (s/show!))))
