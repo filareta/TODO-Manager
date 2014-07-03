@@ -16,7 +16,6 @@
         next-date-criteria (to-local-date-time (date-time 2014 6 25))]
 
     (testing "search todo by simple criteria"
-      (println coll)
       (is (= (invoke-search {:status :in-progress}))
           #{"Research for my project"
             "Training tae bo"
