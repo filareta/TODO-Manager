@@ -10,7 +10,8 @@
              :refer [build-search-criteria search-all]]
             [todo-manager.data-filters.order
              :refer [order-by-priority order-by-progress]]
-            [clojure.string :refer [join]]))
+            [todo-manager.data-handler.validator :refer [validate]]
+            [clojure.string :refer [join blank?]]))
 
 (declare draw-collection)
 (declare draw-todo)
@@ -152,15 +153,22 @@
                           selector (s/select frame [id])]]
     (swap! todo assoc property (s/config selector :text)))
     (swap! todo assoc :status
-                      (s/text (s/selection form-button-group))))
+                      (s/id-of (s/selection form-button-group))))
+
+(defn validate-before-save
+  []
+  (collect-text)
+  (let [error-message (validate @todo)]
+    (if (blank? error-message)
+      (add-todo @todo status-mapper)
+      (s/alert frame error-message))))
 
 (defn attach-todo-form-listeners
   []
   (s/listen create-button
             :action
             (fn [e]
-              (collect-text)
-              (add-todo @todo status-mapper))))
+              (validate-before-save))))
 
 (defn attach-create-listener
   []
@@ -175,8 +183,7 @@
             :action
             (fn [e]
               (delete-todo local-todo status-mapper)
-              (collect-text)
-              (add-todo @todo status-mapper))))
+              (validate-before-save))))
 
 (defn attach-todo-listeners
   [delete-button edit-button
@@ -222,6 +229,8 @@
         status (s/flow-panel :items form-status-buttons
                              :align :center
                              :hgap 20 :vgap 20)]
+
+    (s/selection! form-button-group (s/select status [:#new]))
     (s/vertical-panel :id :todo-form
                       :items (-> property-panels
                                  vec
