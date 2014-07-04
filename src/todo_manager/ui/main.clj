@@ -163,8 +163,6 @@
     (if (blank? error-message)
       (do
         (add-todo @todo status-mapper)
-        (println "WITH DELETE")
-        (println with-delete?)
         (if with-delete?
           (delete-todo old-todo status-mapper)))
       (s/alert frame error-message))))
