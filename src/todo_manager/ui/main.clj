@@ -22,6 +22,7 @@
 (declare draw-edit-form)
 (declare redraw-main-frame)
 (declare redraw-panel-items)
+(declare remove-listeners)
 
 (def todo (atom {}))
 
@@ -94,14 +95,18 @@
             :listen
             [:action
              (fn [e]
+               (remove-listeners (s/select panel [:.save]))
                (s/selection! button-group (s/select statuses [:#all]))
                (redraw-main-frame (resolve-todos-type)))]))
 
 (def create-button
   (s/button :text "Create" :id :create))
 
-(def complete-edit-button
-  (s/button :text "Save" :id :save))
+(defn remove-listeners
+  [buttons]
+  (doseq [button buttons
+          listener (.getActionListeners button)]
+    (.removeActionListener button listener)))
 
 (defn attach-ordering-listeners
   []
@@ -185,12 +190,12 @@
               (s/config! frame :content (draw-form)))))
 
 (defn attach-edit-save-listener
-  [local-todo]
-  (s/listen complete-edit-button
+  [button old-todo]
+  (s/listen button
             :action
             (fn [e]
               (validate-before-save :with-delete? true
-                                    :old-todo local-todo))))
+                                    :old-todo old-todo))))
 
 (defn attach-todo-listeners
   [delete-button edit-button
@@ -205,8 +210,7 @@
             :action
             (fn [e]
               (s/config! panel :items
-                               [(draw-edit-form todo) back-button])
-              (attach-edit-save-listener todo)))
+                               [(draw-edit-form todo) back-button])))
   (s/listen completed
             :action
             (fn [e]
@@ -266,14 +270,16 @@
                                                         :columns 40 :margin 15)]))
         status-panel (s/flow-panel :items form-status-buttons
                                    :align :center
-                                   :hgap 20 :vgap 20)]
+                                   :hgap 20 :vgap 20)
+        edit-save-button (s/button :text "Save" :class :save)]
     (s/selection! form-button-group
                   (s/select status-panel [(keyword (str "#" (name status)))]))
+    (attach-edit-save-listener edit-save-button todo)
     (s/vertical-panel :id :todo-form
                       :items (-> property-panels
                                  vec
                                  (conj status-panel)
-                                 (conj complete-edit-button)
+                                 (conj edit-save-button)
                                  (conj back-button)))))
 
 (defn draw-todo
@@ -347,9 +353,7 @@
                     (into completed-boxes)
                     (into reopen-boxes)
                     (into start-boxes))]
-    (doseq [button buttons
-            listener (.getActionListeners button)]
-      (.removeActionListener button listener)))
+    (remove-listeners buttons))
 
   (let [items (-> coll
                   (resolve-todos-ordering)

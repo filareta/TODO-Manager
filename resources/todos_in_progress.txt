@@ -1,3 +1,3 @@
-status: in-progress; progress: 0.2; goal: Voip exam; end_date: 2014/07/05; start_date: 2014/06/24; priority: 7; tags: voip, exam; 
-status: in-progress; progress: 0.6; goal: Research for my project; end_date: 2014/07/05; start_date: 2014/06/24; priority: 5; tags: clojure, exam; 
-status: in-progress; progress: 0.2; goal: Writing my project; end_date: 2014/07/05; start_date: 2014/06/24; priority: 6; tags: clojure, exam; 
+status: in-progress; tags: clojure, exam; progress: 0.6; priority: 6; end_date: 2014/07/06; start_date: 2014/06/24; goal: Research for my project; 
+status: in-progress; tags: sport; progress: 0.8; priority: 9; end_date: 2014/07/06; start_date: 2014/07/01; goal: Training tae bo; 
+status: in-progress; tags: clojure, exam; progress: 0.9; priority: 8; end_date: 2014/07/06; start_date: 2014/06/24; goal: Writing my project; 
