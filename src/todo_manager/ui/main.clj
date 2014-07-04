@@ -101,8 +101,7 @@
 
 (defn attach-ordering-listeners
   []
-  (doseq [[id func] {:#priority order-by-priority
-                    :#progress order-by-progress}
+  (doseq [id [:#priority :#progress]
           :let [selector (s/select ordering [id])]]
     (s/listen selector
               :action
