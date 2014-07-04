@@ -156,11 +156,14 @@
                       (s/id-of (s/selection form-button-group))))
 
 (defn validate-before-save
-  []
+  [with-delete & old-todo]
   (collect-text)
   (let [error-message (validate @todo)]
     (if (blank? error-message)
-      (add-todo @todo status-mapper)
+      (do
+        (add-todo @todo status-mapper)
+        (if (with-delete)
+          (delete-todo old-todo status-mapper)))
       (s/alert frame error-message))))
 
 (defn attach-todo-form-listeners
@@ -168,7 +171,7 @@
   (s/listen create-button
             :action
             (fn [e]
-              (validate-before-save))))
+              (validate-before-save false))))
 
 (defn attach-create-listener
   []
@@ -182,8 +185,7 @@
   (s/listen complete-edit-button
             :action
             (fn [e]
-              (delete-todo local-todo status-mapper)
-              (validate-before-save))))
+              (validate-before-save true local-todo))))
 
 (defn attach-todo-listeners
   [delete-button edit-button

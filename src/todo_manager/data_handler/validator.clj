@@ -4,11 +4,11 @@
 
 (defn check-for-empty-fields
   [todo]
-  (let [empy-fields (map (fn [[key value]] (blank? value))
+  (let [empty-fields (map (fn [[key value]] (blank? value))
                          (-> todo
                              (dissoc :tags)
                              (dissoc :status)))]
-    (if (some true? empy-fields)
+    (if (some true? empty-fields)
       "There are empty fields. Only tags are optional.")))
 
 (defn validate-fields-content
