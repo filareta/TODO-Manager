@@ -14,7 +14,7 @@
 (defn validate-fields-content
   [todo]
   (let [date-matcher #(re-matches #"\d{4}(?:-|/)\d{2}(?:-|/)\d{2}" %)
-        progress-matcher #(re-matches #"0\.\d" %)
+        progress-matcher #(re-matches #"(?:0\.\d|1\.0)" %)
         priority-matcher #(re-matches #"\d+" %)
         error-messages (for [[key value] todo
                              :when (nil? (#{:goal :tags} key))]
