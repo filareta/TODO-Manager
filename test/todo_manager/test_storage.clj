@@ -26,6 +26,12 @@
                    :tags #{"clojure" "exam"}
                    :start_date (to-local-date-time (date-time 2014 6 24))
                    :end_date (to-local-date-time (date-time 2014 7 5))}
+        new-todo (-> todo
+                     (assoc :status :new)
+                     (assoc :progress "0.0"))
+        new-added-todo (-> added-todo
+                           (assoc :status :new)
+                           (assoc :progress 0.0))
         next-added-todo (assoc added-todo :goal "Start testing the project")
         next-todo (assoc todo :goal "Start testing the project")
         expected-completed (-> added-todo
@@ -33,7 +39,10 @@
                                (assoc :progress 1.0))
         expected-new (-> added-todo
                          (assoc :status :new)
-                         (assoc :progress 0.0))]
+                         (assoc :progress 0.0))
+        expected-started (-> added-todo
+                             (assoc :status :in-progress)
+                             (assoc :progress 0.0))]
 
     (testing "add todo"
       (add-todo todo test-status-mapper)
@@ -71,4 +80,10 @@
       (is (= (count @test-todos-in-progress) 0))
       (is (= (count @test-new-todos) 1))
       (is (= (first @test-new-todos)
-             expected-new)))))
+             expected-new)))
+
+    (testing "set todo in progress, ready to be start"
+      (add-todo new-todo test-status-mapper)
+      (set-in-progress new-added-todo test-status-mapper)
+      (is (= (@test-todos-in-progress expected-started)
+             expected-started)))))

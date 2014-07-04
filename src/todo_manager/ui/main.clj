@@ -4,7 +4,8 @@
              :refer [unparse-time]]
             [todo-manager.data-handler.storage
              :refer [delete-todo status-mapper add-todo
-                     new-todos todos-in-progress completed-todos]]
+                     new-todos todos-in-progress completed-todos
+                     mark-completed reopen set-in-progress]]
             [todo-manager.data-filters.search
              :refer [build-search-criteria search-all]]
             [todo-manager.data-filters.order
@@ -15,11 +16,12 @@
 (declare draw-todo)
 (declare draw-form)
 (declare draw-edit-form)
-(declare redraw-main-panel)
+(declare redraw-main-frame)
+(declare redraw-panel-items)
 
 (def todo (atom {}))
 
-(def frame (s/frame :title "TODO Manager" :height 640 :width 480
+(def frame (s/frame :title "TODO Manager" :height 820 :width 640
                     :resizable? true :visible? true :on-close :exit))
 
 (def button-group (s/button-group))
@@ -89,7 +91,7 @@
             [:action
              (fn [e]
                (s/selection! button-group (s/select statuses [:#all]))
-               (redraw-main-panel (resolve-todos-type)))]))
+               (redraw-main-frame (resolve-todos-type)))]))
 
 (def create-button
   (s/button :text "Create" :id :create))
@@ -106,10 +108,7 @@
               :action
               (fn [e]
                 (s/selection! ordering-button-group selector)
-                (s/config! panel :items (-> (resolve-todos-type)
-                                            func
-                                            (draw-collection)
-                                            (conj header)))))))
+                (redraw-panel-items)))))
 
 (defn attach-status-listeners
   []
@@ -119,10 +118,7 @@
               :action
               (fn [e]
                 (s/selection! button-group selector)
-                (s/config! panel :items (-> (resolve-todos-type)
-                                            (resolve-todos-ordering)
-                                            (draw-collection)
-                                            (conj header)))))))
+                (redraw-panel-items)))))
 
 (defn attach-search-listeners
   []
@@ -184,21 +180,35 @@
               (add-todo @todo status-mapper))))
 
 (defn attach-todo-listeners
-  [delete-button edit-button todo]
+  [delete-button edit-button
+   completed open-as-new
+   start todo]
   (s/listen delete-button
             :action
             (fn [e]
               (delete-todo todo status-mapper)
-              (s/config! panel :items (-> (resolve-todos-type)
-                                          (resolve-todos-ordering)
-                                          (draw-collection)
-                                          (conj header)))))
+              (redraw-panel-items)))
   (s/listen edit-button
             :action
             (fn [e]
               (s/config! panel :items
                                [(draw-edit-form todo) back-button])
-              (attach-edit-save-listener todo))))
+              (attach-edit-save-listener todo)))
+  (s/listen completed
+            :action
+            (fn [e]
+              (mark-completed todo status-mapper)
+              (redraw-panel-items)))
+  (s/listen open-as-new
+            :action
+            (fn [e]
+              (reopen todo status-mapper)
+              (redraw-panel-items)))
+  (s/listen start
+            :action
+            (fn [e]
+              (set-in-progress todo status-mapper)
+              (redraw-panel-items))))
 
 (defn draw-form
   []
@@ -263,22 +273,36 @@
         edit-button (s/button :text "Edit"
                               :halign :center
                               :valign :center
-                              :class :edit)]
-    (attach-todo-listeners delete-button edit-button todo)
+                              :class :edit)
+        completed (s/checkbox :text "mark completed"
+                              :halign :center
+                              :valign :center
+                              :class :mark-completed)
+        open-as-new (s/checkbox :text "reopen"
+                              :halign :center
+                              :valign :center
+                              :class :reopen)
+        start (s/checkbox :text "start"
+                          :halign :center
+                          :valign :center
+                          :class :start)
+        shortcuts (s/flow-panel :items [completed open-as-new start]
+                                :align :center :hgap 2 :vgap 2)]
+    (attach-todo-listeners delete-button edit-button completed open-as-new start todo)
     (s/vertical-panel :items [(s/label :text goal
                                        :h-text-position :center
                                        :v-text-position :center)
-                            (s/progress-bar :orientation :horizontal
-                                            :value (* 100 progress))
-                            (s/label :text (str "Start date: "
-                                                (unparse-time start_date)))
-                            (s/label :text (str "End date: "
-                                                (unparse-time end_date)))
-                            (s/label :text (str "Priority: "
-                                                priority))
-                            (s/label :text (str "Tags: "
-                                                (join ", " tags)))
-                            delete-button edit-button])))
+                              (s/progress-bar :orientation :horizontal
+                                              :value (* 100 progress))
+                              (s/label :text (str "Start date: "
+                                                  (unparse-time start_date)))
+                              (s/label :text (str "End date: "
+                                                  (unparse-time end_date)))
+                              (s/label :text (str "Priority: "
+                                                  priority))
+                              (s/label :text (str "Tags: "
+                                                  (join ", " tags)))
+                              delete-button edit-button shortcuts])))
 
 (defn draw-collection
   [todos]
@@ -288,14 +312,30 @@
   [notification]
   (s/alert frame notification))
 
-(defn redraw-main-panel
+(defn redraw-panel-items
+  []
+  (s/config! panel :items (-> (resolve-todos-type)
+                              (resolve-todos-ordering)
+                              (draw-collection)
+                              (conj header))))
+
+(defn redraw-main-frame
   [coll]
   (let [delete-buttons (s/select panel [:.delete])
         edit-buttons (s/select panel [:.edit])
-        buttons (into delete-buttons edit-buttons)]
+        completed-boxes  (s/select panel [:.mark-completed])
+        reopen-boxes (s/select panel [:.reopen])
+        start-boxes (s/select panel [:.start])
+        buttons (-> []
+                    (into delete-buttons)
+                    (into edit-buttons)
+                    (into completed-boxes)
+                    (into reopen-boxes)
+                    (into start-boxes))]
     (doseq [button buttons
             listener (.getActionListeners button)]
       (.removeActionListener button listener)))
+
   (let [items (-> coll
                   (resolve-todos-ordering)
                   (draw-collection)

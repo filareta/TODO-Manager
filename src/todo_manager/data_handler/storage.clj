@@ -68,3 +68,7 @@
 (defn reopen
   [todo mapper]
   (change-status-progress todo mapper :new 0.0))
+
+(defn set-in-progress
+  [todo mapper]
+  (change-status-progress todo mapper :in-progress 0.0))
