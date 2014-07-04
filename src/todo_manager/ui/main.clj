@@ -3,14 +3,17 @@
             [todo-manager.data-handler.writer
              :refer [unparse-time]]
             [todo-manager.data-handler.storage
-             :refer [delete-todo status-mapper add-todo
-                     new-todos todos-in-progress completed-todos
+             :refer [delete-todo add-todo
                      mark-completed reopen set-in-progress]]
             [todo-manager.data-filters.search
              :refer [build-search-criteria search-all]]
             [todo-manager.data-filters.order
              :refer [order-by-priority order-by-progress]]
             [todo-manager.data-handler.validator :refer [validate]]
+            [todo-manager.conf :refer [status-mapper
+                                       new-todos
+                                       todos-in-progress
+                                       completed-todos]]
             [clojure.string :refer [join blank?]]))
 
 (declare draw-collection)

@@ -4,7 +4,7 @@
                                  difference]]
             [clojure.contrib.string :refer [substring?]]
             [clojure.string :refer [lower-case split trim]]
-            [todo-manager.data-handler.storage
+            [todo-manager.conf
              :refer [new-todos
                      todos-in-progress
                      completed-todos]]

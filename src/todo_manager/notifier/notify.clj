@@ -1,8 +1,10 @@
 (ns todo-manager.notifier.notify
-  (:require [todo-manager.data-handler.storage
+  (:require [todo-manager.conf
              :refer [todos-in-progress
                      new-todos
-                     completed-todos]]
+                     completed-todos
+                     time-distance
+                     time-period-to-notify]]
             [todo-manager.data-handler.reader
              :refer [parse-collection]]
             [clj-time.core :refer [minutes after? before?
@@ -10,10 +12,6 @@
             [clj-time.local :refer [local-now]]
             [clj-time.periodic :refer [periodic-seq]]
             [clojure.string :refer [join]]))
-
-
-(def time-distance (hours 24))
-(def time-distance-minutes (minutes 1))
 
 (def notification (atom ""))
 
@@ -64,7 +62,7 @@
 (defn check-for-notifications
   []
   (while true
-    (Thread/sleep 300000)
+    (Thread/sleep time-period-to-notify)
     (let [approaching-deadline
           (check-for-todos-approaching-deadline @todos-in-progress)
           incomming (check-for-incomming-todos @new-todos)]

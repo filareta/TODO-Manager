@@ -2,20 +2,12 @@
   (:require [todo-manager.data-handler.writer
              :refer [write-collection]]
             [todo-manager.data-handler.reader
-             :refer [parse-time parse-tags]]))
+             :refer [parse-time parse-tags]]
+            [todo-manager.conf
+             :refer [file-mapper new-todos
+                     todos-in-progress
+                     completed-todos]]))
 
-
-(def new-todos (atom #{}))
-(def todos-in-progress (atom #{}))
-(def completed-todos (atom #{}))
-
-(def status-mapper {:new new-todos
-                    :in-progress todos-in-progress
-                    :completed completed-todos})
-
-(def file-mapper {:new "resources/new_todos.txt"
-                  :in-progress "resources/todos_in_progress.txt"
-                  :completed "resources/completed_todos.txt"})
 
 (add-watch new-todos
            :change-new-todos
